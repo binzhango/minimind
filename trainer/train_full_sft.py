@@ -121,10 +121,10 @@ def init_distributed_mode():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="MiniMind Full SFT")
     parser.add_argument("--out_dir", type=str, default="../out")
-    parser.add_argument("--epochs", type=int, default=2)
-    parser.add_argument("--batch_size", type=int, default=16)
+    parser.add_argument("--epochs", type=int, default=1) # change from 2 to 1 for playing
+    parser.add_argument("--batch_size", type=int, default=64)
     parser.add_argument("--learning_rate", type=float, default=5e-7)
-    parser.add_argument("--device", type=str, default="cuda:0" if torch.cuda.is_available() else "cpu")
+    parser.add_argument("--device", type=str, default="cuda:0" if torch.cuda.is_available() else "mps")
     parser.add_argument("--dtype", type=str, default="bfloat16")
     parser.add_argument("--use_wandb", action="store_true")
     parser.add_argument("--wandb_project", type=str, default="MiniMind-Full-SFT")
@@ -150,13 +150,13 @@ if __name__ == "__main__":
     os.makedirs(args.save_dir, exist_ok=True)
     os.makedirs(args.out_dir, exist_ok=True)
     tokens_per_iter = args.batch_size * args.max_seq_len
-    device_type = "cuda" if "cuda" in args.device else "cpu"
+    device_type = "cuda" if "cuda" in args.device else "mps"
 
     args.wandb_run_name = f"MiniMind-Full-SFT-Epoch-{args.epochs}-BatchSize-{args.batch_size}-LearningRate-{args.learning_rate}"
 
-    ctx = nullcontext() if device_type == "cpu" else torch.cuda.amp.autocast()
+    ctx = nullcontext() if device_type == "mps" else torch.cuda.amp.autocast()
     ddp = int(os.environ.get("RANK", -1)) != -1  # is this a ddp run?
-    ddp_local_rank, DEVICE = 0, "cuda:0"
+    ddp_local_rank, DEVICE = 0, "mps" # "cuda:0"
     base_seed = 1337
     torch.manual_seed(base_seed)
     torch.cuda.manual_seed(base_seed)
