@@ -1,3 +1,4 @@
+import datetime
 import os
 import sys
 __package__ = "trainer"
@@ -102,14 +103,14 @@ def train_epoch(epoch, wandb):
         if step % args.log_interval == 0:
             spend_time = time.time() - start_time
             Logger(
-                'Epoch:[{}/{}]({}/{}) loss:{:.3f} lr:{:.12f} epoch_Time:{}min:'.format(
+                'Epoch:[{}/{}]({}/{}) loss:{:.3f} lr:{:.12f} epoch_Time:{}min:{}'.format(
                     epoch + 1,
                     args.epochs,
                     step,
                     iter_per_epoch,
                     loss.item() * args.accumulation_steps,
                     optimizer.param_groups[-1]['lr'],
-                    spend_time / (step + 1) * iter_per_epoch // 60 - spend_time // 60))
+                    spend_time / (step + 1) * iter_per_epoch // 60 - spend_time // 60, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
 
             if (wandb is not None) and (not ddp or dist.get_rank() == 0):
                 wandb.log({"loss": loss * args.accumulation_steps,
@@ -244,3 +245,8 @@ if __name__ == "__main__":
     iter_per_epoch = len(train_loader)
     for epoch in range(args.epochs):
         train_epoch(epoch, wandb)
+
+"""
+Epoch:[1/2](0/51835) loss:0.693 lr:0.000000011000 epoch_Time:8014.0min:2025-09-21 11:37:18
+Epoch:[2/2](51800/51835) loss:0.218 lr:0.000000001000 epoch_Time:0.0min:2025-09-21 16:11:04
+"""
