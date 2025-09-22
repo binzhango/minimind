@@ -46,7 +46,7 @@ def benchmark_cuda(size, dtype=torch.float32, iterations=100):
     # torch.cuda.synchronize()
 
     # 基准测试
-    # torch.cuda.synchronize()
+    # torch.cuda.synchronize()pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu126
     start_time = time.perf_counter()
 
     for _ in range(iterations):
