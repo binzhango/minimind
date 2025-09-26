@@ -137,11 +137,15 @@ if __name__ == "__main__":
     parser.add_argument("--log_interval", type=int, default=100)
     parser.add_argument("--save_interval", type=int, default=100)
     parser.add_argument('--local_rank', type=int, default=-1)
-    parser.add_argument('--hidden_size', default=512, type=int)
+    # parser.add_argument('--hidden_size', default=512, type=int)
+    parser.add_argument('--hidden_size', default=768, type=int)
+
     parser.add_argument('--num_hidden_layers', default=8, type=int)
     parser.add_argument('--max_seq_len', default=512, type=int)
     parser.add_argument('--use_moe', default=False, type=bool)
-    parser.add_argument("--data_path", type=str, default="../dataset/sft_mini_512.jsonl")
+    # parser.add_argument("--data_path", type=str, default="../dataset/sft_mini_512.jsonl")
+    parser.add_argument("--data_path", type=str, default="../dataset/sft_1024.jsonl")
+
 
     args = parser.parse_args()
 
@@ -204,7 +208,21 @@ if __name__ == "__main__":
 
 
 """
+1.23G dataset
+
 Epoch:[1/2](0/75921) loss:2.634 lr:0.000000550000 epoch_Time:21853.0min: 2025-09-21 05:17:40
-...
+
 Epoch:[2/2](75900/75921) loss:2.044 lr:0.000000050000 epoch_Time:0.0min: 2025-09-21 10:27:14
+"""
+
+"""
+5.59G dataset
+
+Epoch:[1/2](0/262273) loss:6.896 lr:0.000000550000 epoch_Time:1049253.0min: 2025-09-23 18:04:23
+
+Epoch:[1/2](197700/262273) loss:1.992 lr:0.000000394292 epoch_Time:232.0min: 2025-09-24 05:51:37
+
+Epoch:[2/2](123500/262273) loss:1.950 lr:0.000000131490 epoch_Time:480.0min: 2025-09-24 16:57:47
+
+Epoch:[2/2](262200/262273) loss:1.890 lr:0.000000050000 epoch_Time:0.0min: 2025-09-25 00:56:10
 """

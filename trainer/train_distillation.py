@@ -1,3 +1,4 @@
+import datetime
 import os
 import sys
 
@@ -33,9 +34,13 @@ def get_lr(current_step, total_steps, lr):
 
 def distillation_loss_fn(student_logits, teacher_logits, temperature=1.0, reduction='batchmean'):
     with torch.no_grad():
-        teacher_probs = F.softmax(teacher_logits / temperature, hidden_size=-1).detach()
+        # teacher_probs = F.softmax(teacher_logits / temperature, hidden_size=-1).detach()
+        teacher_probs = F.softmax(teacher_logits / temperature).detach()
 
-    student_log_probs = F.log_softmax(student_logits / temperature, hidden_size=-1)
+
+    # student_log_probs = F.log_softmax(student_logits / temperature, hidden_size=-1)
+    student_log_probs = F.log_softmax(student_logits / temperature)
+
 
     kl = F.kl_div(
         student_log_probs,
@@ -113,14 +118,15 @@ def train_epoch(epoch, wandb, alpha=0.0, temperature=1.0):
         if step % args.log_interval == 0:
             spend_time = time.time() - start_time
             Logger(
-                'Epoch:[{}/{}]({}/{}) loss:{:.4f} lr:{:.12f} epoch_Time:{}min:'.format(
+                'Epoch:[{}/{}]({}/{}) loss:{:.4f} lr:{:.12f} epoch_Time:{}min:{}'.format(
                     epoch,
                     args.epochs - 1,
                     step,
                     iter_per_epoch,
                     loss.item(),
                     optimizer.param_groups[-1]['lr'],
-                    spend_time / (step + 1) * iter_per_epoch // 60 - spend_time // 60
+                    spend_time / (step + 1) * iter_per_epoch // 60 - spend_time // 60,
+                    datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 )
             )
 
@@ -201,7 +207,7 @@ if __name__ == "__main__":
     parser.add_argument("--save_interval", type=int, default=100)
     parser.add_argument("--max_seq_len", type=int, default=512)
     parser.add_argument('--local_rank', type=int, default=-1)
-    parser.add_argument("--data_path", type=str, default="../dataset/sft_xxx.jsonl")
+    parser.add_argument("--data_path", type=str, default="../dataset/sft_512.jsonl")
 
     args = parser.parse_args()
     # 定义学生模型和教师模型
@@ -263,3 +269,15 @@ if __name__ == "__main__":
     iter_per_epoch = len(train_loader)
     for epoch in range(args.epochs):
         train_epoch(epoch, wandb)
+
+
+"""
+学生模型(LLM)总参数量：25.830 百万
+教师模型(LLM)总参数量：104.031 百万
+
+Epoch:[0/5](0/212513) loss:0.3979 lr:0.000005500000 epoch_Time:1846723.0min:2025-09-25 07:32:24
+
+Epoch:[0/5](25500/212513) loss:0.2955 lr:0.000005495067 epoch_Time:3985.0min:2025-09-25 16:27:04
+
+
+"""
